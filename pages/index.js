@@ -2,26 +2,31 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { useState, useEffect } from 'react'
+import useWindowSize from './hooks/useWindowSize';
 
 export default function Home() {
 
-  const [height, setHeight] = useState(
-    typeof window !== 'undefined' ? window.innerHeight - 25 : 600
-  )
-  const [width, setWidth] = useState(
-    typeof window !== 'undefined' ? window.innerWidth : 500
-  )
+  const {width, height} = useWindowSize();
+  const [stackHeight, setStackHeight] = useState(height - 50);
+
   const [platformWidth, setPlatformWidth] = useState(500)
 
-  const [platforms, setPlatforms] = useState([{left: (width / 2) - (platformWidth / 2), right: (width / 2) + (platformWidth / 2), height: height}])
-  const [platform, setPlatform] = useState({left: 0, right: platformWidth, height: height - 25})
+  const [platforms, setPlatforms] = useState([{left: 0, right: 0, height: 0}])
+  const [platform, setPlatform] = useState({left: 0, right: 0, height: 0})
+
+  useEffect(() => {
+      setStackHeight(height - 50);
+      setPlatforms([{left: (width / 2) - (platformWidth / 2), right: (width / 2) + (platformWidth / 2), height: height - 25}])
+      setPlatform({left: 0, right: platformWidth, height: height - 50})
+    } , [width, height])
+
   const [direction, setDirection] = useState(1)
 
   useEffect(() => {
       if(platform.left <= 0) {
           setDirection(1)
       }
-      if(platform.right >= window.innerWidth - 50) {
+      if(platform.right >= width) {
           setDirection(-1)
       }
   } , [platform])
@@ -52,9 +57,9 @@ export default function Home() {
     if(newRight - newLeft <= 0) {
       alert('You lose')
     }
-    setHeight(height - 25)
-    setPlatforms([...platforms, {left: newLeft, right: newRight, height: height}])
-    setPlatform({left: 0, right: newRight - newLeft, height: height - 25})
+    setStackHeight(stackHeight - 25)
+    setPlatforms([...platforms, {left: newLeft, right: newRight, height: stackHeight}])
+    setPlatform({left: 0, right: newRight - newLeft, height: stackHeight - 25})
   }
 
 
